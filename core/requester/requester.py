@@ -1,4 +1,4 @@
-from core.requester.types.request import Request
+from core.requester.requester_types.request import Request
 
 
 def requests(url, method: str = 'get', **kwargs):

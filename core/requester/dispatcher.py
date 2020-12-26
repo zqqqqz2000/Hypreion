@@ -4,9 +4,10 @@ import time
 from asyncio import sleep, coroutine
 from config import Default
 from typing import *
-from core.requester.types.domain import Domain
-from core.requester.types.request import Request
-from core.types import Singleton
+from core.requester.requester_types.domain import Domain
+from core.requester.requester_types.request import Request
+from core.core_types import Singleton
+from .requester_types import PocGenerator
 
 
 class Dispatcher(Singleton):
@@ -23,7 +24,7 @@ class Dispatcher(Singleton):
     def __init__(self, *args, **kwargs):
         # first init the instance
         if Dispatcher._first_init_flag:
-            self.request_pool: List[Tuple[Generator, Request]] = []
+            self.request_pool: List[Tuple[PocGenerator, Request]] = []
             self.domain_pool: Dict[str, Domain] = {}
             Dispatcher._t = self.start_serve()
 
@@ -32,14 +33,18 @@ class Dispatcher(Singleton):
         This function controls the whole dispatcher serve
         :return: None
         """
-        async def _task_helper(request_task: coroutine, generator: Generator):
+        async def _task_helper(request_task: coroutine, generator: PocGenerator):
             """
             All requests will pack to this task_helper coroutine and result will send to generator to get next request
             :param request_task:
             :param generator:
             :return: None
             """
-            res = await request_task
+            try:
+                res = await request_task
+            except Exception as error:
+                generator.poc.error_handler(error)
+                return
             r = generator.send(res)
             if r:
                 self.request_pool.append((generator, r))
@@ -112,7 +117,7 @@ class Dispatcher(Singleton):
         self._t.join()
 
 
-def mount2dispatcher(g: Generator):
+def mount2dispatcher(g: PocGenerator):
     """
     Mount a task to Dispatcher
     If dispatcher have no instance, it will create it automaticly and start serve.
