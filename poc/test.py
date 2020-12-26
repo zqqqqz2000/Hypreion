@@ -18,10 +18,14 @@ class Test(POC):
     def error_handler(self, error: Exception):
         print(error)
 
+    @staticmethod
+    def filter(target: Target):
+        return True
+
 
 if __name__ == '__main__':
     for i in range(100):
-        target = Target('https://www.huya.com123/')
+        target = Target('https://www.huya.com1/')
         poc = Test(target)
         g = PocGenerator(poc)
         mount2dispatcher(g)
