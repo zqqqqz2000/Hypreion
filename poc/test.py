@@ -1,3 +1,4 @@
+from config import Default
 from core.requester import requests
 from core.requester import mount2dispatcher
 from core.requester.requester_types import PocGenerator
@@ -7,16 +8,16 @@ import time
 
 
 class Test(POC):
-    def execute(self, target: Target):
+    def execute(self):
         t = time.time()
         for i in range(10):
-            res = yield requests(target.url)
-            print(res['status'])
-        print(time.time() - t)
+            res = yield requests(self.target.url, timeout=1)
+            self.logger.information('Test', res['status'])
+        self.logger.information('test', str(time.time() - t))
         yield
 
     def error_handler(self, error: Exception):
-        print(error)
+        self.logger.error('test', repr(error))
 
     @staticmethod
     def filter(target: Target):
@@ -25,7 +26,8 @@ class Test(POC):
 
 if __name__ == '__main__':
     for i in range(100):
-        target = Target('https://www.huya.com1/')
-        poc = Test(target)
+        time.sleep(0.5)
+        target = Target('https://www.baidu.com/')
+        poc = Test(target, Default())
         g = PocGenerator(poc)
         mount2dispatcher(g)

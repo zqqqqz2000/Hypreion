@@ -1,5 +1,6 @@
 from typing import *
 from core import global_var
+from core.core_types import Config
 from hyperion_types.target import Target
 from hyperion_types.poc_tree_filter import PocTreeFilter
 
@@ -9,12 +10,12 @@ class POC(PocTreeFilter):
     The base class of all the POC
     """
 
-    def __init__(self, target: Target):
-        self.g = self.execute(target)
+    def __init__(self, target: Target, config: Config):
         self.target: Target = target
-        self.logger = global_var.logger
+        self.g = self.execute()
+        self.logger = config.LOGGER
 
-    def execute(self, target: Target):
+    def execute(self):
         """
         poc main function, should be a generator
         """

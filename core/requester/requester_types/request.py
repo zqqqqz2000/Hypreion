@@ -1,5 +1,8 @@
 from typing import *
 import re
+
+import aiohttp
+
 from utils.utils import obj2dict
 
 
@@ -12,7 +15,8 @@ class Request:
             json: Optional[Dict] = None,
             headers: Optional[Dict] = None,
             cookies: Optional[Dict] = None,
-            proxy: Optional[str] = None
+            proxy: Optional[str] = None,
+            timeout: Optional[float] = None
     ):
         # int
         self.url: str = url
@@ -23,6 +27,11 @@ class Request:
         self.headers: Optional[Dict] = headers
         self.cookies: Optional[Dict] = cookies
         self.proxy: Optional[str] = proxy
+        if timeout is not None:
+            self.timeout: Optional = aiohttp.ClientTimeout(total=timeout, connect=None,
+                                                           sock_connect=None, sock_read=None)
+        else:
+            self.timeout: Optional[aiohttp.ClientTimeout] = timeout
 
     def get_domain(self) -> str:
         url_comp = re.compile('https?://(.*?)/?')
@@ -31,5 +40,5 @@ class Request:
 
     def get_aiohttp_parameters(self) -> Dict:
         # attributes in this instance to a dict
-        parameters2dict_keys = ['url', 'parameter', 'data', 'json', 'headers', 'cookies', 'proxy']
+        parameters2dict_keys = ['url', 'parameter', 'data', 'json', 'headers', 'cookies', 'proxy', 'timeout']
         return obj2dict(self, parameters2dict_keys, lambda x: x is not None)
