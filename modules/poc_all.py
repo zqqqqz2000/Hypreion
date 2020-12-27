@@ -1,7 +1,9 @@
 import argparse
 from core import global_var
 from core.poc_handler import build_poc_tree
-from hyperion_types import BaseModule
+from core.requester import mount2dispatcher
+from core.requester.requester_types import PocGenerator
+from hyperion_types import BaseModule, Target
 
 
 class PocAll(BaseModule):
@@ -15,6 +17,9 @@ class PocAll(BaseModule):
 
     @staticmethod
     def execute(args: argparse.Namespace):
-        print(3223)
         root, all_pocs = build_poc_tree(global_var.config.POC_BASE_DIR)
-        print(all_pocs)
+        for poc in all_pocs:
+            target = Target('https://www.baidu.com/')
+            p = poc(target, global_var.config)
+            g = PocGenerator(p)
+            mount2dispatcher(g)
