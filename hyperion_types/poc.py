@@ -1,5 +1,4 @@
 from typing import *
-from core import global_var
 from core.core_types import Config
 from hyperion_types.target import Target
 from hyperion_types.poc_tree_filter import PocTreeFilter
