@@ -4,12 +4,22 @@ import argparse
 class BaseModule:
     @staticmethod
     def arg_declare(parser: argparse.ArgumentParser):
+        """
+        this function will be call when this module be loaded
+        and use to inject arguments to argparse
+        """
         ...
 
     @staticmethod
     def hit(args: argparse.Namespace) -> bool:
+        """
+        to determine whether this module be use by user based on args
+        """
         ...
 
     @staticmethod
     def execute(args: argparse.Namespace):
+        """
+        the action when this module be execute
+        """
         ...
