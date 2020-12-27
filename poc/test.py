@@ -28,6 +28,6 @@ if __name__ == '__main__':
     for i in range(100):
         time.sleep(0.5)
         target = Target('https://www.baidu.com/')
-        poc = Test(target, Default())
+        poc = Test(target, Default)
         g = PocGenerator(poc)
         mount2dispatcher(g)

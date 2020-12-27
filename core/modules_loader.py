@@ -22,6 +22,8 @@ def load_modules(parser: ArgumentParser, module_dir: str):
             if sub.startswith('__') or sub == 'BaseModule':
                 continue
             mcls = eval(f'm.{sub}')
+            if not issubclass(type(mcls), type):
+                continue
             if issubclass(mcls, BaseModule):
                 modules.append(mcls)
 

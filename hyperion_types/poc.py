@@ -10,7 +10,7 @@ class POC(PocTreeFilter):
     The base class of all the POC
     """
 
-    def __init__(self, target: Target, config: Config):
+    def __init__(self, target: Target, config: Type[Config]):
         self.target: Target = target
         self.g = self.execute()
         self.logger = config.LOGGER
