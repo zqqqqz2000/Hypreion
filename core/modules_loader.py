@@ -1,6 +1,5 @@
 import importlib
 from argparse import ArgumentParser
-from core import global_var
 import os
 from typing import *
 

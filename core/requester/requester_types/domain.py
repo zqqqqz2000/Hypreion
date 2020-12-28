@@ -16,7 +16,7 @@ class Domain:
         self.domain: str = domain
         self.last_active_time = time.time()
         # function which control request interval
-        self.bounce_function = do_nothing
+        self.bounce_function: Callable[[Dict, Domain]] = do_nothing
 
     async def request(self, request: Request) -> Dict:
         # sleep interval time
@@ -37,5 +37,5 @@ class Domain:
             async with session.__getattribute__(request.method)(**parameters) as r:
                 # request to dict
                 req_dict = await aio_request2dict(r)
-        self.bounce_function(req_dict)
+        self.bounce_function(req_dict, self)
         return req_dict

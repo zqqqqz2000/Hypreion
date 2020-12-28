@@ -1,7 +1,6 @@
 from config import Default
 from core.requester import requests
 from core.requester import mount2dispatcher
-from core.requester.requester_types import PocGenerator
 from hyperion_types import POC
 from hyperion_types.target import Target
 import time
@@ -29,5 +28,4 @@ if __name__ == '__main__':
         time.sleep(0.5)
         target = Target('https://www.baidu.com/')
         poc = Test(target, Default)
-        g = PocGenerator(poc)
-        mount2dispatcher(g)
+        mount2dispatcher(poc)

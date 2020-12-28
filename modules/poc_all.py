@@ -2,11 +2,15 @@ import argparse
 from core import global_var
 from core.poc_handler import build_poc_tree
 from core.requester import mount2dispatcher
-from core.requester.requester_types import PocGenerator
-from hyperion_types import BaseModule, Target
+from core.requester.requester_types import Domain
+from hyperion_types import Target, NormalModule
 
 
-class PocAll(BaseModule):
+def bounce(res, domain: Domain):
+    domain.interval = 1
+
+
+class PocAll(NormalModule):
     @staticmethod
     def arg_declare(parser: argparse.ArgumentParser):
         parser.add_argument("-a", "--all", help="test all poc to target", action="store_true")
@@ -21,5 +25,4 @@ class PocAll(BaseModule):
         for poc in all_pocs:
             target = Target('https://www.baidu.com/')
             p = poc(target, global_var.config)
-            g = PocGenerator(p)
-            mount2dispatcher(g)
+            mount2dispatcher(p, bounce)

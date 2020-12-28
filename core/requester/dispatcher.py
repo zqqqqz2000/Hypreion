@@ -7,7 +7,9 @@ from typing import *
 from core.requester.requester_types.domain import Domain
 from core.requester.requester_types.request import Request
 from core.core_types import Singleton
-from .requester_types import PocGenerator
+from hyperion_types import POC
+from utils.utils import do_nothing
+from .requester_types import PackedGenerator
 
 
 class Dispatcher(Singleton):
@@ -24,8 +26,9 @@ class Dispatcher(Singleton):
     def __init__(self, *args, **kwargs):
         # first init the instance
         if Dispatcher._first_init_flag:
-            self.request_pool: List[Tuple[PocGenerator, Request]] = []
+            self.request_pool: List[Tuple[PackedGenerator, Request]] = []
             self.domain_pool: Dict[str, Domain] = {}
+            self.bounce_func_pool: Dict[str, Callable[[Dict, Domain]]] = {}
             Dispatcher._t = self.start_serve()
 
     def start_serve(self):
@@ -33,7 +36,8 @@ class Dispatcher(Singleton):
         This function controls the whole dispatcher serve
         :return: None
         """
-        async def _task_helper(request_task: coroutine, generator: PocGenerator):
+
+        async def _task_helper(request_task: coroutine, generator: PackedGenerator):
             """
             All requests will pack to this task_helper coroutine and result will send to generator to get next request
             :param request_task:
@@ -43,11 +47,13 @@ class Dispatcher(Singleton):
             try:
                 res = await request_task
             except Exception as error:
-                generator.poc.error_handler(error)
-                return
-            r = generator.send(res)
+                r = generator.send(error)
+            else:
+                r = generator.send(res)
             if r:
                 self.request_pool.append((generator, r))
+            elif asyncio.iscoroutine(r):
+                await r
 
         async def _serve_helper():
             """
@@ -67,7 +73,8 @@ class Dispatcher(Singleton):
                         ...
                     else:
                         self.domain_pool[domain] = Domain(domain)
-                        # TODO: domain init
+                        if domain in self.bounce_func_pool:
+                            self.domain_pool[domain].bounce_function = self.bounce_func_pool[domain]
                     request_task = self.domain_pool[domain].request(request)
                     tasks.append(_task_helper(request_task, g))
                 if tasks:
@@ -117,16 +124,23 @@ class Dispatcher(Singleton):
         self._t.join()
 
 
-def mount2dispatcher(g: PocGenerator):
+def mount2dispatcher(request_generator: Union[POC, Generator], bounce_function: Callable[[Dict, Domain], Any] = do_nothing):
     """
     Mount a task to Dispatcher
     If dispatcher have no instance, it will create it automaticly and start serve.
-    :param g: a task, must be generator, each request yield a Request object.
+    :param request_generator: a task, must be poc or generator, each request yield a Request object.
+    :param bounce_function: a function ,which controls the delay of every request on this domain
     :return: None
     """
-    r = g.send(None)
+    if isinstance(request_generator, POC):
+        g = request_generator.g
+    else:
+        g = request_generator
+    pg = PackedGenerator(g)
+    r = pg.send(None)
     if r is None:
         return
     dispatcher = Dispatcher()
     # load the generator into dispatcher to run
     dispatcher.request_pool.append((g, r))
+    dispatcher.bounce_func_pool[request_generator.target.get_domain()] = bounce_function

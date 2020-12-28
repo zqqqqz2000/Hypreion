@@ -1,11 +1,9 @@
 from typing import *
-from hyperion_types.poc import POC
 
 
-class PocGenerator:
-    def __init__(self, poc: POC):
-        self.g: Generator = poc.g
-        self.poc = poc
+class PackedGenerator:
+    def __init__(self, g: Generator):
+        self.g: Generator = g
 
     def send(self, value: Any):
         return self.g.send(value)

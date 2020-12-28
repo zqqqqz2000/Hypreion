@@ -20,8 +20,6 @@ class POC(PocTreeFilter):
         """
         raise
 
-    def error_handler(self, error: Exception):
-        """
-        when the poc execute with an error, the error information will send to this function and handle
-        """
-        ...
+    @staticmethod
+    def is_error(res: Union[Dict, Exception]) -> bool:
+        return issubclass(type(res), Exception)
