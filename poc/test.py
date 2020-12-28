@@ -25,6 +25,7 @@ class Test(POC):
                 self.logger.debug('Test', 'Test normal request')
                 url = self.target.url
             res = yield requests(url, timeout=1)
+            # error dispose
             if POC.is_error(res):
                 self.logger.error('Test', repr(res))
             else:
