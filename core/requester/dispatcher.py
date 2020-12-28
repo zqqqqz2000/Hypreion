@@ -144,5 +144,5 @@ def mount2dispatcher(request_generator: Union[POC, Generator],
         return
     dispatcher = Dispatcher()
     # load the generator into dispatcher to run
-    dispatcher.request_pool.append((g, r))
     dispatcher.bounce_func_pool[request_generator.target.get_domain()] = bounce_function
+    dispatcher.request_pool.append((g, r))
