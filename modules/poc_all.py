@@ -25,4 +25,4 @@ class PocAll(NormalModule):
         for poc in all_pocs:
             target = Target('https://www.baidu.com/')
             p = poc(target, global_var.config)
-            mount2dispatcher(p, bounce)
+            mount2dispatcher(p, bounce, lambda x: print(f'(callback) poc {p} test done'))

@@ -51,6 +51,8 @@ class Dispatcher(Singleton):
                 r = generator.send(res)
             if r:
                 self.request_pool.append((generator, r))
+            else:
+                generator.callback(generator.raw)
 
         async def _serve_helper():
             """
@@ -124,24 +126,29 @@ class Dispatcher(Singleton):
         self._t.join()
 
 
-def mount2dispatcher(request_generator: Union[POC, Generator],
-                     bounce_function: Callable[[Dict, Domain], Any] = do_nothing):
+def mount2dispatcher(
+        request_generator: Union[POC, Generator],
+        bounce_function: Callable[[Dict, Domain], Any] = do_nothing,
+        callback: Callable[[Union[POC, Generator]], NoReturn] = do_nothing
+):
     """
     Mount a task to Dispatcher
     If dispatcher have no instance, it will create it automaticly and start serve.
     :param request_generator: a task, must be poc or generator, each request yield a Request object.
     :param bounce_function: a function ,which controls the delay of every request on this domain
+    :param callback: a function, will call on request_generator stop StopIteration
     :return: None
     """
     if isinstance(request_generator, POC):
         g = request_generator.g
     else:
         g = request_generator
-    pg = PackedGenerator(g)
+    pg = PackedGenerator(g, callback)
+    pg.raw = request_generator
     r = pg.send(None)
     if r is None:
         return
     dispatcher = Dispatcher()
     # load the generator into dispatcher to run
     dispatcher.bounce_func_pool[request_generator.target.get_domain()] = bounce_function
-    dispatcher.request_pool.append((g, r))
+    dispatcher.request_pool.append((pg, r))
