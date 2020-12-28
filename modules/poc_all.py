@@ -8,6 +8,7 @@ from hyperion_types import Target, NormalModule
 
 def bounce(res, domain: Domain):
     domain.interval = 1
+    print(f'bounce function called, delayed {domain.interval} s')
 
 
 class PocAll(NormalModule):
