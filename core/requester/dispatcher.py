@@ -26,7 +26,7 @@ class Dispatcher(Singleton):
     def __init__(self, *args, **kwargs):
         # first init the instance
         if Dispatcher._first_init_flag:
-            self.request_pool: List[Tuple[PackedGenerator, Request]] = []
+            self.request_pool: List[Tuple[PackedGenerator, Union[Request, asyncio.coroutine]]] = []
             self.domain_pool: Dict[str, Domain] = {}
             self.bounce_func_pool: Dict[str, Callable[[Dict, Domain]]] = {}
             Dispatcher._t = self.start_serve()
@@ -52,8 +52,6 @@ class Dispatcher(Singleton):
                 r = generator.send(res)
             if r:
                 self.request_pool.append((generator, r))
-            elif asyncio.iscoroutine(r):
-                await r
 
         async def _serve_helper():
             """
@@ -68,6 +66,9 @@ class Dispatcher(Singleton):
                 # request with domain instance
                 while len(self.request_pool) and Dispatcher._serve_flag:
                     g, request = self.request_pool.pop()
+                    if asyncio.iscoroutine(request):
+                        tasks.append(_task_helper(request, g))
+                        continue
                     domain = request.get_domain()
                     if domain in self.domain_pool:
                         ...
@@ -124,7 +125,8 @@ class Dispatcher(Singleton):
         self._t.join()
 
 
-def mount2dispatcher(request_generator: Union[POC, Generator], bounce_function: Callable[[Dict, Domain], Any] = do_nothing):
+def mount2dispatcher(request_generator: Union[POC, Generator],
+                     bounce_function: Callable[[Dict, Domain], Any] = do_nothing):
     """
     Mount a task to Dispatcher
     If dispatcher have no instance, it will create it automaticly and start serve.
