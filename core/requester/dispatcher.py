@@ -18,7 +18,6 @@ class Dispatcher(Singleton):
     When request function called, Dispatcher will get the detail of it (e.g url, cookies, methods)
     and it will pack it into an task_helper coroutine, after the response back, the running stream will give back.
     """
-    _first_init_flag = True
     _serve_flag = False
     _t: Optional[threading.Thread] = None
     _loop: asyncio.BaseEventLoop = asyncio.get_event_loop()
@@ -29,7 +28,7 @@ class Dispatcher(Singleton):
             self.request_pool: List[Tuple[PackedGenerator, Union[Request, asyncio.coroutine]]] = []
             self.domain_pool: Dict[str, Domain] = {}
             self.bounce_func_pool: Dict[str, Callable[[Dict, Domain]]] = {}
-            Dispatcher._t = self.start_serve()
+            self.start_serve()
 
     def start_serve(self):
         """
@@ -97,16 +96,16 @@ class Dispatcher(Singleton):
         Dispatcher._t = t
         return t
 
-    @staticmethod
-    def stop_serve():
+    @classmethod
+    def stop_serve(cls):
         """
         To stop serve
         if serve stopped, all the tasks which control by dispatcher will pause
         :return: None
         """
-        if Dispatcher._serve_flag:
-            Dispatcher._serve_flag = False
-            Dispatcher._t.join()
+        if cls._serve_flag:
+            cls._serve_flag = False
+            cls._t.join()
 
     def _domain_clear(self):
         """

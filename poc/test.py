@@ -17,16 +17,18 @@ class Test(POC):
         t = time.time()
         for i in range(10):
             if i >= 5:
+                # test error
                 self.logger.debug('Test', 'Test error')
                 url = '1' + self.target.url
             else:
+                # test normal request
                 self.logger.debug('Test', 'Test normal request')
                 url = self.target.url
             res = yield requests(url, timeout=1)
-            if not POC.is_error(res):
-                self.logger.information('Test', f"status: {res['status']}")
-            else:
+            if POC.is_error(res):
                 self.logger.error('Test', repr(res))
+            else:
+                self.logger.information('Test', f"status: {res['status']}")
         self.logger.information('test', str(time.time() - t))
         self.logger.debug('Test', 'Test asyncio sleep')
         for i in range(5):

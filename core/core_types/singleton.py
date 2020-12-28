@@ -4,6 +4,7 @@ import threading
 class Singleton:
     _instance_lock = threading.Lock()
     _instance = None
+    _first_init_flag = True
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
@@ -14,8 +15,8 @@ class Singleton:
             cls._first_init_flag = False
         return cls._instance
 
-    @staticmethod
-    def stop_serve():
+    @classmethod
+    def stop_serve(cls):
         ...
 
     @classmethod
