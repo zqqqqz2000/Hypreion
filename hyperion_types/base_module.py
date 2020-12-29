@@ -1,9 +1,10 @@
 import argparse
+from typing import *
 
 
 class BaseModule:
     @staticmethod
-    def arg_declare(parser: argparse.ArgumentParser):
+    def arg_declare(parser: argparse.ArgumentParser) -> NoReturn:
         """
         this function will be call when this module be loaded
         and use to inject arguments to argparse
@@ -18,7 +19,7 @@ class BaseModule:
         ...
 
     @staticmethod
-    def execute(args: argparse.Namespace):
+    def execute(args: argparse.Namespace) -> NoReturn:
         """
         the action when this module be execute
         """
