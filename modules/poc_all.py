@@ -3,12 +3,20 @@ from core import global_var
 from core.poc_handler import build_poc_tree
 from core.requester import mount2dispatcher
 from core.requester.requester_types import Domain
-from hyperion_types import Target, NormalModule
+from hyperion_types import Target, NormalModule, POC
+from typing import *
 
 
 def bounce(res, domain: Domain):
     domain.interval = 1
     print(f'bounce function called, delayed {domain.interval} s')
+
+
+def poc_callback(res: Union[POC, Generator, Exception]):
+    if POC.is_error(res):
+        print(f'error test in callback: {res}')
+    else:
+        print(f'(callback) poc {res} test done')
 
 
 class PocAll(NormalModule):
@@ -26,4 +34,4 @@ class PocAll(NormalModule):
         for poc in all_pocs:
             target = Target('https://www.baidu.com/')
             p = poc(target, global_var.config)
-            mount2dispatcher(p, bounce, lambda x: print(f'(callback) poc {p} test done'))
+            mount2dispatcher(p, bounce, poc_callback)

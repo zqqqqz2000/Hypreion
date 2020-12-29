@@ -1,5 +1,5 @@
 from typing import *
-
+from hyperion_types import POC
 from utils.utils import do_nothing
 
 
@@ -8,7 +8,7 @@ class PackedGenerator:
 
     def __init__(self, g: Generator, callback=do_nothing):
         self.g: Generator = g
-        self.callback = callback
+        self.callback: Callable[[Union[POC, Generator, Exception]], NoReturn] = callback
 
     def send(self, value: Any):
         return self.g.send(value)

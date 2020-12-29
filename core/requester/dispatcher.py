@@ -46,9 +46,17 @@ class Dispatcher(Singleton):
             try:
                 res = await request_task
             except Exception as error:
-                r = generator.send(error)
+                try:
+                    r = generator.send(error)
+                except Exception as error:
+                    generator.callback(error)
+                    return
             else:
-                r = generator.send(res)
+                try:
+                    r = generator.send(res)
+                except Exception as error:
+                    generator.callback(error)
+                    return
             if r:
                 self.request_pool.append((generator, r))
             else:
@@ -129,7 +137,7 @@ class Dispatcher(Singleton):
 def mount2dispatcher(
         request_generator: Union[POC, Generator],
         bounce_function: Callable[[Dict, Domain], Any] = do_nothing,
-        callback: Callable[[Union[POC, Generator]], NoReturn] = do_nothing
+        callback: Callable[[Union[POC, Generator, Exception]], NoReturn] = do_nothing
 ):
     """
     Mount a task to Dispatcher

@@ -37,6 +37,8 @@ class Test(POC):
             async_result = yield sleep_return_test()
             self.logger.information('Test', async_result + f' sleep {time.time() - t} s')
         self.logger.debug('Test', 'Test done')
+        # assert to be an error, catch by callback
+        1 / 0
         yield
 
     @staticmethod
