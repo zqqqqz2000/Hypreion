@@ -22,6 +22,7 @@
   class NormalModule(BaseModule):
       @staticmethod
       def arg_declare(parser: argparse.ArgumentParser):
+          # 注册本模块触发的关键字，定义方式详情见argparse模块
           parser.add_argument(
               "-f",
               "--file",
@@ -38,10 +39,12 @@
           )
       @staticmethod
       def hit(args: argparse.Namespace) -> bool:
+          # 判断用户是否选择了该模块
           return args.test
       
       @staticmethod
       def execute(args: argparse.Namespace):
+          # 选择该模块后的行为
           print("测试模块被执行了")
   ```
 
