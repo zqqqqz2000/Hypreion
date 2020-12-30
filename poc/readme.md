@@ -29,11 +29,25 @@
   下面为上述操作的小例子
   
   ```python
+  import asyncio
+  from config import Default
+  from core.requester import requests
+  from core.requester import mount2dispatcher
+  from hyperion_types import POC
+  from hyperion_types.target import Target
+  import time
+  
+  
+  # 测试自定义协程的执行
+  async def sleep_return_test():
+      await asyncio.sleep(3)
+      return 'return success'
+  
+  
   class Test(POC):
       # POC测试主体
       def execute(self):
           t = time.time()
-          # 测试十次http访问
           for i in range(10):
               # 后五个测试http错误捕获
               if i >= 5:
@@ -66,8 +80,15 @@
   
       @staticmethod
       def filter(target: Target):
-          # 不进行判断，直接返回真
           return True
+  
+  
+  # 为了确保poc能直接运行，编写main函数，main函数的具体含义在modules中给出
+  # 逻辑与POC编写无关，此处可以不做理解
+  if __name__ == '__main__':
+      target = Target('https://www.baidu.com/')
+      poc = Test(target, Default)
+      mount2dispatcher(poc)
   ```
 ### POC生命周期
 
