@@ -26,7 +26,9 @@
   
   在进行输出时请勿使用`print`函数而使用`self.logger`进行输出，这种方式可以根据模块加载而展现出不同的输出行为
   
-  **注: 退出execute函数的唯一方式为`yield`而并非return，且必须确保execute函数拥有`yield`函数**
+  **注: 退出execute函数的唯一方式为`yield`而并非return，且必须确保execute函数拥有`yield`，哪怕不返回任何内容，若需要返回内容给回调函数，请返回一个元祖对象，例如：`yield ({'code': 200},)`**
+  
+  **注: 若希望将POC分为多个函数编写，且函数中将发起request请求，则该函数编写要求与`execute`函数一致，且在被调用时请使用`yield`调用，例如`返回结果变量 = yield 自定义的函数(参数...)`，否则和普通函数一样编写**
   
   下面为上述操作的小例子
   
@@ -46,13 +48,19 @@
       return 'return success'
   
   
+  # 测试自定义的发起request请求的函数
+  def test_request_inner_function():
+      res = yield requests('https://www.baidu.com/', timeout=1)
+      yield (res['status'],)
+  
+  
   class Test(POC):
       # POC测试主体
       def execute(self):
           t = time.time()
           # 使用模块要求的logger输出
           self.logger.debug('Test', 'Test error')
-          res = yield requests('https://111www.baiduuu.com', timeout=1)
+          res = yield requests('https://111www.baiduuu.com/', timeout=1)
           # 错误捕获
           if POC.is_error(res):
               # 错误则输出错误
@@ -62,7 +70,7 @@
               self.logger.information('Test', f"status: {res['status']}")
           # 正常访问测试
           self.logger.debug('Test', 'Test normal request')
-          res = yield requests('https://www.baidu.com', timeout=1)
+          res = yield requests('https://www.baidu.com/', timeout=1)
           # 错误捕获
           if POC.is_error(res):
               # 错误则输出错误
@@ -77,8 +85,11 @@
           async_result = yield sleep_return_test()
           self.logger.information('Test', async_result + f' sleep {time.time() - t} s')
           self.logger.debug('Test', 'Test done')
+          # 测试自定义的发起请求的函数
+          res = yield test_request_inner_function()
+          print(*res)
           # 重要，请务必使用yield标记POC主体的退出
-          yield
+          yield ('测试完毕',)
   
       @staticmethod
       def filter(target: Target):
@@ -88,9 +99,10 @@
   # 为了确保poc能直接运行，编写main函数，main函数的具体含义在modules中给出
   # 逻辑与POC编写无关，此处可以不做理解
   if __name__ == '__main__':
-      target = Target('https://www.baidu.com/')
-      poc = Test(target, Default)
-      mount2dispatcher(poc)
+      for i in range(100):
+          target = Target('https://www.baidu.com/')
+          poc = Test(target, Default)
+          mount2dispatcher(poc)
   ```
 ### POC生命周期
 

@@ -13,6 +13,12 @@ async def sleep_return_test():
     return 'return success'
 
 
+# 测试自定义的发起request请求的函数
+def test_request_inner_function():
+    res = yield requests('https://www.baidu.com/', timeout=1)
+    yield (res['status'],)
+
+
 class Test(POC):
     # POC测试主体
     def execute(self):
@@ -44,14 +50,19 @@ class Test(POC):
         async_result = yield sleep_return_test()
         self.logger.information('Test', async_result + f' sleep {time.time() - t} s')
         self.logger.debug('Test', 'Test done')
+        # 测试自定义的发起请求的函数
+        res = yield test_request_inner_function()
+        print(*res)
         # 重要，请务必使用yield标记POC主体的退出
-        yield ('最终的返回结果',)
+        yield ('测试完毕',)
 
     @staticmethod
     def filter(target: Target):
         return True
 
 
+# 为了确保poc能直接运行，编写main函数，main函数的具体含义在modules中给出
+# 逻辑与POC编写无关，此处可以不做理解
 if __name__ == '__main__':
     for i in range(100):
         target = Target('https://www.baidu.com/')
