@@ -34,7 +34,7 @@ class Request:
             self.timeout: Optional[aiohttp.ClientTimeout] = timeout
 
     def get_domain(self) -> str:
-        url_comp = re.compile('https?://(.*?)/?')
+        url_comp = re.compile(r'[a-zA-Z]+://[^\s]*[.com|.cn]')
         res = url_comp.findall(self.url)
         return res[0]
 

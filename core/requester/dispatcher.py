@@ -26,7 +26,7 @@ class Dispatcher(Singleton):
         # first init the instance
         if Dispatcher._first_init_flag:
             # all requests will push to this pool
-            self.request_pool: List[Tuple[PackedGenerator, Union[Request, asyncio.coroutine]]] = []
+            self.request_pool: List[Tuple[PackedGenerator, Union[Request, asyncio.coroutine, Generator]]] = []
             # all domains which request recent
             self.domain_pool: Dict[str, Domain] = {}
             # domain config cache
@@ -54,18 +54,18 @@ class Dispatcher(Singleton):
                 try:
                     r = generator.send(error)
                 except Exception as error:
-                    generator.callback(error)
+                    generator.callback(error, None)
                     return
             else:
                 try:
                     r = generator.send(res)
                 except Exception as error:
-                    generator.callback(error)
+                    generator.callback(error, None)
                     return
-            if r:
+            if not isinstance(r, tuple) and r is not None:
                 self.request_pool.append((generator, r))
             else:
-                generator.callback(generator.raw)
+                generator.callback(generator.raw, r)
 
         async def _serve_helper():
             """
@@ -80,9 +80,16 @@ class Dispatcher(Singleton):
                 # request with domain instance
                 while len(self.request_pool) and Dispatcher._serve_flag:
                     g, request = self.request_pool.pop()
-                    if asyncio.iscoroutine(request):
+                    # if is generator, means the exec flow in a func calling
+                    if isinstance(request, Generator):
+                        # packing to mount2dispatcher function and callback is inner_func_callback
+                        mount2dispatcher(request, callback=inner_func_callback_gen(g))
+                        continue
+                    # if is coroutine object, just add to task
+                    elif asyncio.iscoroutine(request):
                         tasks.append(_task_helper(request, g))
                         continue
+                    # else is normal request
                     domain = request.get_domain()
                     # check if domain in domain pool
                     if domain in self.domain_pool:
@@ -150,7 +157,9 @@ class Dispatcher(Singleton):
 def mount2dispatcher(
         request_generator: Union[POC, Generator],
         bounce_function: Callable[[Dict, Domain], Any] = do_nothing,
-        callback: Callable[[Union[POC, Generator, Exception]], NoReturn] = do_nothing
+        callback: Callable[[Union[POC, Generator, Exception], Any], NoReturn] = do_nothing,
+        # send_next: bool = True,
+        first_send: Any = None
 ):
     """
     Mount a task to Dispatcher
@@ -158,6 +167,8 @@ def mount2dispatcher(
     :param request_generator: a task, must be poc or generator, each request yield a Request object.
     :param bounce_function: a function ,which controls the delay of every request on this domain
     :param callback: a function, will call on request_generator stop StopIteration
+    # :param send_next: if is true, send first_send to generator
+    :param first_send: first value send to generator
     :return: None
     """
     if isinstance(request_generator, POC):
@@ -166,10 +177,27 @@ def mount2dispatcher(
         g = request_generator
     pg = PackedGenerator(g, callback)
     pg.raw = request_generator
-    r = pg.send(None)
-    if r is None:
-        return
+    r: Optional[Union[Tuple, Request]] = pg.send(first_send)
     dispatcher = Dispatcher()
+    if isinstance(r, Generator):
+        dispatcher.request_pool.append((pg, r))
+        return
+    if r is None or isinstance(r, tuple):
+        callback(pg.raw, r)
+        return
     # load the generator into dispatcher to run
-    dispatcher.bounce_func_pool[request_generator.target.get_domain()] = bounce_function
+    domain = r.get_domain()
+    if not (domain in dispatcher.bounce_func_pool and bounce_function == do_nothing):
+        dispatcher.bounce_func_pool[domain] = bounce_function
     dispatcher.request_pool.append((pg, r))
+
+
+def inner_func_callback_gen(parent: PackedGenerator):
+    """
+    generate a inner function, which will be the callback of 'function called in another function'
+    it will mount its parent and result to mount2dispatcher function
+    """
+    def inner_func_callback(_, res: Any):
+        mount2dispatcher(parent.raw, first_send=res, callback=parent.callback)
+
+    return inner_func_callback

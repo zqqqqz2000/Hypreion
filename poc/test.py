@@ -19,7 +19,7 @@ class Test(POC):
         t = time.time()
         # 使用模块要求的logger输出
         self.logger.debug('Test', 'Test error')
-        res = yield requests('https://111www.baiduuu.com', timeout=1)
+        res = yield requests('https://111www.baiduuu.com/', timeout=1)
         # 错误捕获
         if POC.is_error(res):
             # 错误则输出错误
@@ -29,7 +29,7 @@ class Test(POC):
             self.logger.information('Test', f"status: {res['status']}")
         # 正常访问测试
         self.logger.debug('Test', 'Test normal request')
-        res = yield requests('https://www.baidu.com', timeout=1)
+        res = yield requests('https://www.baidu.com/', timeout=1)
         # 错误捕获
         if POC.is_error(res):
             # 错误则输出错误
@@ -45,7 +45,7 @@ class Test(POC):
         self.logger.information('Test', async_result + f' sleep {time.time() - t} s')
         self.logger.debug('Test', 'Test done')
         # 重要，请务必使用yield标记POC主体的退出
-        yield
+        yield ('最终的返回结果',)
 
     @staticmethod
     def filter(target: Target):

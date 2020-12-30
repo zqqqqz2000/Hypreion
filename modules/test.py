@@ -11,7 +11,8 @@ def bounce(res, domain: Domain):
     print(f'bounce function called, delayed {domain.interval} s')
 
 
-def poc_callback(res: Union[POC, Generator, Exception]):
+def poc_callback(res: Union[POC, Generator, Exception], result):
+    print(result)
     if POC.is_error(res):
         print(f'error test in callback: {res}')
     else:
