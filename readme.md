@@ -19,9 +19,9 @@
 
 - 快速开始
 
-- [POC编写]: "poc/readme.md"
+- [POC编写]: https://github.com/zqqqqz2000/Hypreion/blob/master/poc/readme.md
 
-- 模块编写
+- [模块编写]: https://github.com/zqqqqz2000/Hypreion/blob/master/modules/readme.md
 
 - 爬虫编写
 
