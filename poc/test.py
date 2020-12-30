@@ -44,6 +44,7 @@ class Test(POC):
         async_result = yield sleep_return_test()
         self.logger.information('Test', async_result + f' sleep {time.time() - t} s')
         self.logger.debug('Test', 'Test done')
+        # 重要，请务必使用yield标记POC主体的退出
         yield
 
     @staticmethod
