@@ -50,33 +50,33 @@
       # POC测试主体
       def execute(self):
           t = time.time()
-          for i in range(10):
-              # 后五个测试http错误捕获
-              if i >= 5:
-                  # 使用模块要求的logger输出
-                  self.logger.debug('Test', 'Test error')
-                  url = '1' + self.target.url
-              else:
-                  # 正常访问测试
-                  self.logger.debug('Test', 'Test normal request')
-                  url = self.target.url
-              res = yield requests(url, timeout=1)
-              # 错误捕获
-              if POC.is_error(res):
-                  # 错误则输出错误
-                  self.logger.error('Test', repr(res))
-              else:
-                  # 正常执行则输出
-                  self.logger.information('Test', f"status: {res['status']}")
-          self.logger.information('test', str(time.time() - t))
+          # 使用模块要求的logger输出
+          self.logger.debug('Test', 'Test error')
+          res = yield requests('https://111www.baiduuu.com', timeout=1)
+          # 错误捕获
+          if POC.is_error(res):
+              # 错误则输出错误
+              self.logger.error('Test', repr(res))
+          else:
+              # 正常执行则输出
+              self.logger.information('Test', f"status: {res['status']}")
+          # 正常访问测试
+          self.logger.debug('Test', 'Test normal request')
+          res = yield requests('https://www.baidu.com', timeout=1)
+          # 错误捕获
+          if POC.is_error(res):
+              # 错误则输出错误
+              self.logger.error('Test', repr(res))
+          else:
+              # 正常执行则输出
+              self.logger.information('Test', f"status: {res['status']}")
+          self.logger.information('Test', str(time.time() - t))
           self.logger.debug('Test', 'Test asyncio sleep')
           # 测试自定的协程
-          for i in range(5):
-              t = time.time()
-              async_result = yield sleep_return_test()
-              self.logger.information('Test', async_result + f' sleep {time.time() - t} s')
+          t = time.time()
+          async_result = yield sleep_return_test()
+          self.logger.information('Test', async_result + f' sleep {time.time() - t} s')
           self.logger.debug('Test', 'Test done')
-          # 很重要，yield代表一个poc主体的执行结束，否则将会触发异常
           yield
   
       @staticmethod
