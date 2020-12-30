@@ -6,7 +6,7 @@
 
 - 创建`自定名称.py`文件在`./poc`目录下
 
-- 创建自定类继承`hyperion_types.POC`类，所有在`./modules`目录下继承`POC`的子类将被视为POC
+- 创建自定类继承`hyperion_types.POC`类，所有在`./poc`目录下继承`POC`的子类将被视为POC
 
 - 根据需求重写`execute`、`filter`成员函数，具体含义如下
 
