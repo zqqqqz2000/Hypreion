@@ -10,10 +10,12 @@
 
 - 根据需求重写`execute`、`filter`成员函数，具体含义如下
 
-  `execute`: 该POC的主体执行内容
-
   `filter`: 判断当前目标是否符合执行该POC的条件
 
+  `execute`: 该POC的主体执行内容，执行的http请求操作请使用`core.requester`下的`requests`进行请求，例如对`www.xxx.com`的请求请写为`自定变量 = yield requests('http://www.xxx.com')`，执行完毕后请求该网站的结果将会以`Dict`的形式存储在自定变量中，若访问出错，请使用`POC.is_error`函数进行判断是否出错，具体内容请查阅`requests`，其中，将自定义的协程函数加入事件循环的方式为`yield coroutines`，例如`yield 自定协程函数(参数...)`，在进行输出时请勿使用`print`函数而使用`self.logger`进行输出，这种方式可以根据模块加载而展现出不同的输出行为
+
+  下面为上述操作的小例子
+  
   ```python
   class Test(POC):
       # POC测试主体
@@ -52,6 +54,7 @@
   
       @staticmethod
       def filter(target: Target):
+          # 不进行判断，直接返回真
           return True
   ```
 ### POC生命周期
