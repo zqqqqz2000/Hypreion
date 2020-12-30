@@ -28,6 +28,8 @@
   
   下面为上述操作的小例子
   
+  **注: 退出execute函数的唯一方式为`yield`而并非return，且必须确保execute函数拥有`yield`函数**
+  
   ```python
   import asyncio
   from config import Default
@@ -74,8 +76,7 @@
               async_result = yield sleep_return_test()
               self.logger.information('Test', async_result + f' sleep {time.time() - t} s')
           self.logger.debug('Test', 'Test done')
-          # 报错，直接触发模块的错误回调
-          1 / 0
+          # 很重要，yield代表一个poc主体的执行结束，否则将会触发异常
           yield
   
       @staticmethod
@@ -95,4 +96,5 @@
 1. POC类被POC装载器载入
 2. 以目标初始化POC
 3. POC被挂载至调度器，这是POC唯一的执行方式
-4. POC执行结束
+4. POC执行结束或遇到错误
+
