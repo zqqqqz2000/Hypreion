@@ -12,6 +12,7 @@ class Domain:
         self.headers: Optional[Dict] = None
         self.interval: int = 0
         self.cookies: Optional[Dict] = None
+        self.proxy: Optional[str] = None
         self.timeout: aiohttp.ClientTimeout = aiohttp.ClientTimeout(total=300)
         self.domain: str = domain
         self.last_active_time = time.time()
@@ -28,6 +29,8 @@ class Domain:
             parameters['headers'] = self.headers
         if 'cookies' not in parameters and self.cookies is not None:
             parameters['cookies'] = self.cookies
+        if 'proxy' not in parameters and self.proxy is not None:
+            parameters['proxy'] = self.proxy
         # call aiohttp request function
         async with aiohttp.ClientSession(
                 cookies=self.cookies or {},

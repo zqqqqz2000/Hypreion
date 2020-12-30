@@ -5,8 +5,10 @@ from typing import *
 
 from hyperion_types import BaseModule
 
+T = TypeVar('T')
 
-def load_modules(parser: ArgumentParser, module_dir: str):
+
+def load_modules(module_dir: str, base: Type[T]) -> List[Type[T]]:
     """
     load all the python file in modules dir
     all the module class should inherit BaseModule
@@ -18,7 +20,7 @@ def load_modules(parser: ArgumentParser, module_dir: str):
         module_name = module_filename.rstrip('.py')
         m = importlib.import_module(f'{module_dir}.{module_name}')
         for sub in dir(m):
-            if sub.startswith('__') or sub == 'BaseModule':
+            if sub.startswith('__') or sub == base.__name__:
                 continue
             mcls = eval(f'm.{sub}')
             if not issubclass(type(mcls), type):
@@ -26,6 +28,10 @@ def load_modules(parser: ArgumentParser, module_dir: str):
             if issubclass(mcls, BaseModule):
                 modules.append(mcls)
 
+    return modules
+
+
+def eval_module(parser: ArgumentParser, modules: List[Type[BaseModule]]) -> NoReturn:
     # declare all module in parser
     for module in modules:
         module.arg_declare(parser)

@@ -1,14 +1,13 @@
 import argparse
 from core import global_var
 from core.poc_handler import build_poc_tree
-from core.requester import mount2dispatcher
-from core.requester.requester_types import Domain
+from core.requester import mount2dispatcher, Domain, set_domain_config
 from hyperion_types import Target, NormalModule, POC
 from typing import *
 
 
 def bounce(res, domain: Domain):
-    domain.interval = 1
+    set_domain_config(domain, interval=1)
     print(f'bounce function called, delayed {domain.interval} s')
 
 

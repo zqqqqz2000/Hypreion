@@ -25,8 +25,13 @@ class Dispatcher(Singleton):
     def __init__(self, *args, **kwargs):
         # first init the instance
         if Dispatcher._first_init_flag:
+            # all requests will push to this pool
             self.request_pool: List[Tuple[PackedGenerator, Union[Request, asyncio.coroutine]]] = []
+            # all domains which request recent
             self.domain_pool: Dict[str, Domain] = {}
+            # domain config cache
+            self.domains_config: Dict[str, Dict] = {}
+            # bounce function of all domain
             self.bounce_func_pool: Dict[str, Callable[[Dict, Domain]]] = {}
             self.start_serve()
 
@@ -79,13 +84,21 @@ class Dispatcher(Singleton):
                         tasks.append(_task_helper(request, g))
                         continue
                     domain = request.get_domain()
+                    # check if domain in domain pool
                     if domain in self.domain_pool:
-                        ...
+                        domain_obj = self.domain_pool[domain]
                     else:
-                        self.domain_pool[domain] = Domain(domain)
+                        # create domain if not
+                        # init domain
+                        domain_obj = Domain(domain)
+                        self.domain_pool[domain] = domain_obj
+                        if domain in self.domains_config:
+                            for config in self.domains_config[domain]:
+                                if hasattr(domain_obj, config):
+                                    domain_obj.__setattr__(config, self.domains_config[config])
                         if domain in self.bounce_func_pool:
-                            self.domain_pool[domain].bounce_function = self.bounce_func_pool[domain]
-                    request_task = self.domain_pool[domain].request(request)
+                            domain_obj.bounce_function = self.bounce_func_pool[domain]
+                    request_task = domain_obj.request(request)
                     tasks.append(_task_helper(request_task, g))
                 if tasks:
                     await asyncio.wait(tasks)
