@@ -4,7 +4,7 @@
 
 ### 建立模块
 
-- 创建`自定.py`文件在`./modules`目录下
+- 创建`自定名称.py`文件在`./modules`目录下
 
 - 创建自定类继承`hyperion_types.BaseModule`类，所有在`./modules`目录下继承`BaseModule`的子类将被视为模块
 
@@ -54,5 +54,5 @@
 
 1. 模块继承`BaseModule`类后被模块装载器载入，执行该模块的`arg_declare`函数，其原型为`arg_declare(parser: argparse.ArgumentParser) -> NoReturn`，`parser`为hyperion的parser，用于注册该模块的参数、解释等
 2. 用户输入完毕后解析参数，并执行该模块的`hit`函数，其原型为`hit(args: argparse.Namespace) -> bool`，`args`为解析完毕后用户的输入，hit函数用于判断用户是否选择使用该模块，若用户选择使用该模块，则返回真，否则返回假
-3. 若`hit`函数返回的结果为真，则下一步将执行该模块的`execute`函数，其原型为`execute(args: argparse.Namespace) -> NoReturn`，`args`为用户输入的参数，可通过用户的参数决定目标，参数等
+3. 若`hit`函数返回的结果为真，代表用户选中了当前模块，则下一步将执行该模块的`execute`函数，其原型为`execute(args: argparse.Namespace) -> NoReturn`，`args`为用户输入的参数，可通过用户的参数决定目标，参数等
 
