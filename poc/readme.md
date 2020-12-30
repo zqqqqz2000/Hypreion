@@ -53,10 +53,7 @@
       @staticmethod
       def filter(target: Target):
           return True
-```
-  
-  
-
+  ```
 ### POC生命周期
 
 1. POC类被POC装载器载入
