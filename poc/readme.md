@@ -26,9 +26,9 @@
   
   在进行输出时请勿使用`print`函数而使用`self.logger`进行输出，这种方式可以根据模块加载而展现出不同的输出行为
   
-  下面为上述操作的小例子
-  
   **注: 退出execute函数的唯一方式为`yield`而并非return，且必须确保execute函数拥有`yield`函数**
+  
+  下面为上述操作的小例子
   
   ```python
   import asyncio
