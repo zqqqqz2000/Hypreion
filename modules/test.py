@@ -22,11 +22,11 @@ def poc_callback(res: Union[POC, Generator, Exception]):
 class PocAll(NormalModule):
     @staticmethod
     def arg_declare(parser: argparse.ArgumentParser):
-        parser.add_argument("-a", "--all", help="test all poc to target", action="store_true")
+        parser.add_argument("--test", help="test all poc to target", action="store_true")
 
     @staticmethod
     def hit(args: argparse.Namespace) -> bool:
-        return args.all
+        return args.test
 
     @staticmethod
     def execute(args: argparse.Namespace):
