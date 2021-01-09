@@ -7,8 +7,11 @@ class PackedGenerator:
     __slots__ = ['raw', 'g', 'callback']
 
     def __init__(self, g: Generator, callback=do_nothing):
+        """
+        callback: raw, return_value
+        """
         self.g: Generator = g
-        self.callback: Callable[[Union[POC, Generator, Exception], Any], NoReturn] = callback
+        self.callback: Callable[[Union[POC, Generator, None], Any], NoReturn] = callback
 
     def send(self, value: Any):
         return self.g.send(value)

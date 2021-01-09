@@ -16,7 +16,8 @@ class Request:
             headers: Optional[Dict] = None,
             cookies: Optional[Dict] = None,
             proxy: Optional[str] = None,
-            timeout: Optional[float] = None
+            timeout: Optional[float] = None,
+            ssl: Optional[bool] = None
     ):
         # int
         self.url: str = url
@@ -27,6 +28,7 @@ class Request:
         self.headers: Optional[Dict] = headers
         self.cookies: Optional[Dict] = cookies
         self.proxy: Optional[str] = proxy
+        self.ssl: Optional[str] = ssl
         if timeout is not None:
             self.timeout: Optional = aiohttp.ClientTimeout(total=timeout, connect=None,
                                                            sock_connect=None, sock_read=None)
@@ -40,5 +42,5 @@ class Request:
 
     def get_aiohttp_parameters(self) -> Dict:
         # attributes in this instance to a dict
-        parameters2dict_keys = ['url', 'parameter', 'data', 'json', 'headers', 'cookies', 'proxy', 'timeout']
+        parameters2dict_keys = ['url', 'parameter', 'data', 'json', 'headers', 'cookies', 'proxy', 'timeout', 'ssl']
         return obj2dict(self, parameters2dict_keys, lambda x: x is not None)
