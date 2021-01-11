@@ -24,6 +24,8 @@ def build_poc_tree(poc_dir: str) -> Tuple[PocNode, List[Type[POC]]]:
         child_nodes = []
         current_node = PocNode(child_pocs, child_nodes, lambda _: True)
         for filename in child_dir:
+            if filename.startswith('__'):
+                continue
             path = current_dir / filename
             if os.path.isdir(path):
                 child_nodes.append(tree_helper(path))

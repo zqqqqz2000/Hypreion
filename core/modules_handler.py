@@ -33,11 +33,12 @@ def load_modules(module_dir: str, base: Type[T]) -> List[Type[T]]:
 
 def eval_module(parser: ArgumentParser, modules: List[Type[BaseModule]]) -> NoReturn:
     # declare all module in parser
+    subs = parser.add_subparsers()
     for module in modules:
-        module.arg_declare(parser)
+        module_parser = subs.add_parser(module.module_name, help=module.help)
+        module.arg_declare(module_parser)
+        module_parser.set_defaults(func=module.execute)
 
     # get args
     args = parser.parse_args()
-    for module in modules:
-        if module.hit(args):
-            module.execute(args)
+    args.func(args)

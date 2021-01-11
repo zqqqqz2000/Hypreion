@@ -19,7 +19,9 @@ class PocNode(PocTreeFilter):
     def __call__(self, target: Target) -> List[Type[POC]]:
         res: List[Type[POC]] = []
         if self.layer_filter(target):
-            res.extend(self.pocs)
+            for poc in self.pocs:
+                if poc.filter(target):
+                    res.append(poc)
         for child in self.childs:
             res.extend(child(target))
         return res
