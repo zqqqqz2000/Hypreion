@@ -11,7 +11,10 @@
 """
 import argparse
 from typing import *
+
 from core import global_var
+from core.core_types import Logger
+from core.modules_handler import load_modules
 from core.poc_handler import build_poc_tree
 from core.requester import mount2dispatcher, Domain
 from hyperion_types import BaseModule, Target
@@ -32,9 +35,14 @@ class FastPoc(BaseModule):
     @staticmethod
     def arg_declare(parser: argparse.ArgumentParser):
         parser.add_argument("-t", "--target", help="single target")
+        parser.add_argument("-l", "--log", help="specify logger, can be echo")
 
     @staticmethod
     def execute(args: argparse.Namespace):
+        loggers: List[Type[Logger]] = load_modules('logger', Logger)
+        for logger in loggers:
+            if logger.__name__ == args.log:
+                global_var.config.LOGGER = logger
         root, all_pocs = build_poc_tree(global_var.config.POC_BASE_DIR)
         target = Target(args.target)
         fit_pocs = root(target)
