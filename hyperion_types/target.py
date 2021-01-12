@@ -1,9 +1,12 @@
 import re
 
+from core.core_errors.target_errors import TargetError
+
 
 class Target:
     def __init__(self, url: str):
         self.url = url
+        self.get_domain()
 
     def __getattr__(self, item):
         if '_attr_' + item in dir(self):
@@ -15,6 +18,8 @@ class Target:
         object.__setattr__(self, '_attr_' + key, value)
 
     def get_domain(self) -> str:
-        url_comp = re.compile('https?://(.*?)/?')
+        url_comp = re.compile('^(https?://[^/]*?)(/.*)?$')
         res = url_comp.findall(self.url)
+        if not len(res):
+            raise TargetError('url not legal, please ensure http or https')
         return res[0]

@@ -25,7 +25,7 @@ def load_modules(module_dir: str, base: Type[T]) -> List[Type[T]]:
             mcls = eval(f'm.{sub}')
             if not issubclass(type(mcls), type):
                 continue
-            if issubclass(mcls, BaseModule):
+            if issubclass(mcls, base):
                 modules.append(mcls)
 
     return modules

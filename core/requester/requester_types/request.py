@@ -17,7 +17,7 @@ class Request:
             cookies: Optional[Dict] = None,
             proxy: Optional[str] = None,
             timeout: Optional[float] = None,
-            ssl: Optional[bool] = None
+            ssl: bool = False
     ):
         # int
         self.url: str = url
