@@ -17,8 +17,8 @@ from core.core_types import Logger
 from core.modules_handler import load_modules
 from core.poc_handler import build_poc_tree
 from core.requester import mount2dispatcher, Domain
-from crawler.check_cms import CheckCms
-from hyperion_types import BaseModule, Target, Crawler, POC
+from hyperion_types import BaseModule, Target, Crawler
+from utils.crawler import crawler_callback_find_poc_eval_poc_gen
 
 
 class FastPoc(BaseModule):
@@ -28,19 +28,6 @@ class FastPoc(BaseModule):
     @staticmethod
     def poc_callback(raw: Any, result: Any):
         print(raw, result)
-
-    @staticmethod
-    def crawler_callback_pack(root, config):
-        def crawler_callback(raw: Any, result: Any):
-            fit_pocs: List[Type[POC]] = root(result)
-            for poc in fit_pocs:
-                mount2dispatcher(poc(result, config), FastPoc.bounce, FastPoc.poc_callback)
-            if not result.eval_pocs:
-                result.eval_pocs = fit_pocs
-            else:
-                result.eval_pocs.extend(fit_pocs)
-
-        return crawler_callback
 
     @staticmethod
     def bounce(res: Dict, domain: Domain):
@@ -73,5 +60,5 @@ class FastPoc(BaseModule):
             mount2dispatcher(
                 crawler(target, config=global_var.config),
                 FastPoc.bounce,
-                FastPoc.crawler_callback_pack(root, global_var.config)
+                crawler_callback_find_poc_eval_poc_gen(root, global_var.config, FastPoc.bounce, FastPoc.poc_callback)
             )

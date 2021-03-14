@@ -7,6 +7,7 @@ class Target:
     def __init__(self, url: str):
         self.url = url
         self.get_domain()
+        self.eval_pocs = set()
 
     def __getattr__(self, item):
         if '_attr_' + item in dir(self):

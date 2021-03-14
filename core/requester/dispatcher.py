@@ -184,7 +184,7 @@ def mount2dispatcher(
     If dispatcher have no instance, it will create it automaticly and start serve.
     :param request_generator: a task, must be poc or generator, each request yield a Request object or generator.
     :param bounce_function: a function ,which controls the delay of every request on this domain
-    :param callback: a function, will call on request_generator stop StopIteration
+    :param callback: a function, will call on request_generator stop StopIteration, first param is which request_generator, second is its return value
     :param first_send: first value send to generator
     :return: None
     """
